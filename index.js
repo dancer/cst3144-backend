@@ -1,3 +1,4 @@
+// express server for academy lessons api
 import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
@@ -8,15 +9,19 @@ import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import { fileURLToPath } from 'url'
 
+// esm dirname workaround
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
+// create express app
 const app = express()
 const port = process.env.PORT || 3000
 
+// database connection
 let db
 let client
 
+// environment variables
 const mongodburi = process.env.MONGODB_URI || 'mongodb+srv://username:password@cluster.mongodb.net/academy'
 const jwtsecret = process.env.JWT_SECRET || 'fallback_secret'
 
