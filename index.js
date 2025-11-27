@@ -399,6 +399,7 @@ app.post('/auth/login', async (req, res) => {
   }
 })
 
+// root endpoint - returns api info
 app.get('/', (req, res) => {
   res.json({
     message: 'academy api server',
@@ -414,10 +415,12 @@ app.get('/', (req, res) => {
   })
 })
 
+// 404 handler for unknown routes
 app.use((req, res) => {
   res.status(404).json({ error: 'endpoint not found' })
 })
 
+// start server and connect to database
 async function startserver() {
   await connecttodb()
   
@@ -431,5 +434,6 @@ async function startserver() {
   })
 }
 
+// run server
 startserver().catch(console.error)
 
