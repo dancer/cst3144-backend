@@ -357,6 +357,7 @@ app.post('/auth/register', async (req, res) => {
   }
 })
 
+// login existing user
 app.post('/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body
@@ -365,16 +366,19 @@ app.post('/auth/login', async (req, res) => {
       return res.status(400).json({ error: 'email and password are required' })
     }
 
+    // find user by email
     const user = await db.collection('users').findOne({ email: email.toLowerCase() })
     if (!user) {
       return res.status(401).json({ error: 'invalid email or password' })
     }
 
+    // verify password
     const isvalidpassword = await bcrypt.compare(password, user.password)
     if (!isvalidpassword) {
       return res.status(401).json({ error: 'invalid email or password' })
     }
 
+    // generate jwt token
     const token = jwt.sign(
       { userid: user._id, email: user.email },
       jwtsecret,
