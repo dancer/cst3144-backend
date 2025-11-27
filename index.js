@@ -165,6 +165,7 @@ app.post('/orders', async (req, res) => {
       userid: userid
     }
 
+    // insert order into database
     const result = await db.collection('orders').insertOne(neworder)
     res.status(201).json({
       message: 'order created successfully',
@@ -176,6 +177,7 @@ app.post('/orders', async (req, res) => {
   }
 })
 
+// update lesson attributes (e.g. spaces after booking)
 app.put('/lessons/:id', async (req, res) => {
   try {
     const { id } = req.params
@@ -189,6 +191,7 @@ app.put('/lessons/:id', async (req, res) => {
       return res.status(400).json({ error: 'update data is required' })
     }
     
+    // validate and extract fields to update
     const updatefields = {}
     
     if (updatedata.topic !== undefined) {
