@@ -105,6 +105,7 @@ app.get('/lessons', async (req, res) => {
   }
 })
 
+// get single lesson by id
 app.get('/lessons/:id', async (req, res) => {
   try {
     const { id } = req.params
@@ -113,6 +114,7 @@ app.get('/lessons/:id', async (req, res) => {
       return res.status(400).json({ error: 'lesson id is required' })
     }
 
+    // convert string id to objectid
     let objectid
     try {
       objectid = ObjectId.isValid(id) ? new ObjectId(id) : id
@@ -133,6 +135,7 @@ app.get('/lessons/:id', async (req, res) => {
   }
 })
 
+// create new order
 app.post('/orders', async (req, res) => {
   try {
     const { name, phone, lessonids, spaces } = req.body
