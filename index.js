@@ -82,15 +82,19 @@ function staticfilemiddleware(req, res, next) {
   }
 }
 
+// enable cors for frontend
 app.use(cors({
   origin: ['http://localhost:5173', 'http://localhost:5174', 'https://yourusername.github.io'],
   credentials: true
 }))
 
+// parse json request bodies
 app.use(express.json())
+// use custom middleware
 app.use(loggermiddleware)
 app.use(staticfilemiddleware)
 
+// get all lessons
 app.get('/lessons', async (req, res) => {
   try {
     const lessons = await db.collection('lessons').find({}).toArray()
