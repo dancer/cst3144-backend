@@ -440,6 +440,64 @@ app.get('/orders', async (req, res) => {
   }
 })
 
+// update order status (e.g. mark as completed)
+app.put('/orders/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { status } = req.body
+    const authheader = req.headers.authorization
+
+    if (!authheader || !authheader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'authorization required' })
+    }
+
+    const token = authheader.substring(7)
+    let decoded
+
+    try {
+      decoded = jwt.verify(token, jwtsecret)
+    } catch (err) {
+      return res.status(401).json({ error: 'invalid token' })
+    }
+
+    if (!status) {
+      return res.status(400).json({ error: 'status is required' })
+    }
+
+    const validstatuses = ['confirmed', 'completed', 'cancelled']
+    if (!validstatuses.includes(status)) {
+      return res.status(400).json({ error: 'invalid status' })
+    }
+
+    let objectid
+    try {
+      objectid = new ObjectId(id)
+    } catch {
+      return res.status(400).json({ error: 'invalid order id' })
+    }
+
+    // verify order belongs to user
+    const order = await db.collection('orders').findOne({ _id: objectid })
+    if (!order) {
+      return res.status(404).json({ error: 'order not found' })
+    }
+
+    if (order.userid.toString() !== decoded.userid) {
+      return res.status(403).json({ error: 'not authorized to update this order' })
+    }
+
+    const result = await db.collection('orders').updateOne(
+      { _id: objectid },
+      { $set: { status: status } }
+    )
+
+    res.status(200).json({ message: 'order status updated', modifiedCount: result.modifiedCount })
+  } catch (error) {
+    console.error('error updating order:', error)
+    res.status(500).json({ error: 'internal server error' })
+  }
+})
+
 // root endpoint - returns api info
 app.get('/', (req, res) => {
   res.json({
