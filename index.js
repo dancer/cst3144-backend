@@ -305,10 +305,12 @@ app.get('/search', async (req, res) => {
   }
 })
 
+// register new user
 app.post('/auth/register', async (req, res) => {
   try {
     const { email, password, name } = req.body
 
+    // validate required fields
     if (!email || !password || !name) {
       return res.status(400).json({ error: 'email, password, and name are required' })
     }
@@ -317,11 +319,13 @@ app.post('/auth/register', async (req, res) => {
       return res.status(400).json({ error: 'password must be at least 6 characters' })
     }
 
+    // check if email already exists
     const existinguser = await db.collection('users').findOne({ email: email.toLowerCase() })
     if (existinguser) {
       return res.status(400).json({ error: 'email already registered' })
     }
 
+    // hash password before storing
     const hashedpassword = await bcrypt.hash(password, 10)
 
     const newuser = {
