@@ -159,7 +159,9 @@ app.post('/orders', async (req, res) => {
       phone: phone.trim(),
       lessonids: lessonids,
       spaces: spaces,
-      userid: userid
+      userid: userid,
+      createdat: new Date(),
+      status: 'confirmed'
     }
 
     // insert order into database
@@ -392,6 +394,48 @@ app.post('/auth/login', async (req, res) => {
     })
   } catch (error) {
     console.error('error logging in:', error)
+    res.status(500).json({ error: 'internal server error' })
+  }
+})
+
+// get orders for logged in user
+app.get('/orders', async (req, res) => {
+  try {
+    const authheader = req.headers.authorization
+
+    if (!authheader || !authheader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'authorization required' })
+    }
+
+    const token = authheader.substring(7)
+    let decoded
+
+    try {
+      decoded = jwt.verify(token, jwtsecret)
+    } catch (err) {
+      return res.status(401).json({ error: 'invalid token' })
+    }
+
+    // get all orders for this user
+    const orders = await db.collection('orders').find({ userid: new ObjectId(decoded.userid) }).toArray()
+
+    // get lesson details for each order
+    const orderswithllessons = await Promise.all(orders.map(async (order) => {
+      const lessons = await Promise.all(order.lessonids.map(async (lessonid) => {
+        const lesson = await db.collection('lessons').findOne({ _id: new ObjectId(lessonid) })
+        return lesson
+      }))
+
+      return {
+        ...order,
+        lessons: lessons.filter(l => l !== null),
+        total: lessons.filter(l => l !== null).reduce((sum, l) => sum + l.price, 0)
+      }
+    }))
+
+    res.status(200).json(orderswithllessons)
+  } catch (error) {
+    console.error('error fetching orders:', error)
     res.status(500).json({ error: 'internal server error' })
   }
 })
