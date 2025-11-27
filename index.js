@@ -25,6 +25,7 @@ let client
 const mongodburi = process.env.MONGODB_URI || 'mongodb+srv://username:password@cluster.mongodb.net/academy'
 const jwtsecret = process.env.JWT_SECRET || 'fallback_secret'
 
+// connect to mongodb atlas database
 async function connecttodb() {
   client = new MongoClient(mongodburi, {
     serverApi: {
@@ -38,6 +39,7 @@ async function connecttodb() {
   })
 
   await client.connect()
+  // verify connection with ping
   await client.db('admin').command({ ping: 1 })
   db = client.db('academy')
   console.log('connected to mongodb atlas successfully')
