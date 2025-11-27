@@ -268,10 +268,12 @@ app.put('/lessons/:id', async (req, res) => {
   }
 })
 
+// search lessons by topic, location, description, price or spaces
 app.get('/search', async (req, res) => {
   try {
     const query = req.query.q
     
+    // return all lessons if no query
     if (!query || query.trim() === '') {
       const lessons = await db.collection('lessons').find({}).toArray()
       return res.status(200).json(lessons)
@@ -279,6 +281,7 @@ app.get('/search', async (req, res) => {
     
     const searchterm = query.trim()
     
+    // build search filter with regex for text fields
     const searchfilter = {
       $or: [
         { topic: { $regex: searchterm, $options: 'i' } },
@@ -287,6 +290,7 @@ app.get('/search', async (req, res) => {
       ]
     }
     
+    // also search numeric fields if query is a number
     const numericquery = parseFloat(searchterm)
     if (!isNaN(numericquery)) {
       searchfilter.$or.push({ price: numericquery })
