@@ -45,14 +45,17 @@ async function connecttodb() {
   console.log('connected to mongodb atlas successfully')
 }
 
+// logger middleware - logs all requests to console
 function loggermiddleware(req, res, next) {
   const timestamp = new Date().toISOString()
   const method = req.method
   const url = req.url
   const ip = req.ip || req.connection.remoteAddress
   
+  // log incoming request
   console.log(`[${timestamp}] ${method} ${url} - ${ip}`)
   
+  // intercept response to log status code
   const originalSend = res.send
   res.send = function(body) {
     console.log(`[${timestamp}] ${method} ${url} - ${res.statusCode}`)
@@ -62,11 +65,13 @@ function loggermiddleware(req, res, next) {
   next()
 }
 
+// static file middleware - serves images from public folder
 function staticfilemiddleware(req, res, next) {
   if (req.url.startsWith('/images/')) {
     const filename = req.url.substring(8)
     const filepath = path.join(__dirname, 'public', 'images', filename)
     
+    // check if file exists and serve it
     if (fs.existsSync(filepath)) {
       res.sendFile(filepath)
     } else {
