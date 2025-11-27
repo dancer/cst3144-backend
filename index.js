@@ -84,7 +84,7 @@ function staticfilemiddleware(req, res, next) {
 
 // enable cors for frontend
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174', 'https://yourusername.github.io'],
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'https://dancer.github.io'],
   credentials: true
 }))
 
