@@ -1,8 +1,10 @@
+// database seed script - populates lessons collection with sample data
 import 'dotenv/config'
 import { MongoClient, ServerApiVersion } from 'mongodb'
 
 const mongodburi = process.env.MONGODB_URI || 'mongodb+srv://username:password@cluster.mongodb.net/academy'
 
+// sample lesson data to seed the database
 const samplelessons = [
   {
     topic: 'mathematics', location: 'hendon', price: 100, spaces: 5, icon: 'fa-calculator',
@@ -114,7 +116,9 @@ const samplelessons = [
   }
 ]
 
+// seed function - clears and repopulates the lessons collection
 async function seeddata() {
+  // hide password in console output
   console.log('attempting to connect to:', mongodburi.replace(/:[^:@]+@/, ':****@'))
 
   const client = new MongoClient(mongodburi, {
@@ -135,12 +139,15 @@ async function seeddata() {
     
     const db = client.db('academy')
     
+    // clear existing lessons
     await db.collection('lessons').deleteMany({})
     console.log('cleared existing lessons')
     
+    // insert sample lessons
     const result = await db.collection('lessons').insertMany(samplelessons)
     console.log(`inserted ${result.insertedCount} lessons`)
     
+    // display inserted lessons
     const lessons = await db.collection('lessons').find({}).toArray()
     console.log('lessons in database:')
     lessons.forEach(lesson => {
@@ -155,5 +162,6 @@ async function seeddata() {
   }
 }
 
+// run seed function
 seeddata()
 
